@@ -23,4 +23,12 @@ public class EmailServiceImpl implements EmailService {
         message.setText(text);
         mailSender.send(message);
     }
+    public void sendEmailForUs(String from, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo("nurbekulyzhandos@gmail.com");
+        message.setSubject(subject);
+        message.setText(text);
+        mailSender.send(message);
+    }
 }

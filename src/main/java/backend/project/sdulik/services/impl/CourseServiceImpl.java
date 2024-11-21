@@ -34,11 +34,6 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Course course = convertToCourse(courseDTO);
-        int grade = 0;
-        for (Map.Entry<String, Integer> entry : course.getAssignments().entrySet()) {
-            grade += entry.getValue();
-        }
-        course.setCurrentGrade(grade);
         course.setUser(user);
         courseRepository.save(course);
     }
@@ -47,7 +42,16 @@ public class CourseServiceImpl implements CourseService {
     public List<AllCourseResponseDTO> allCourses() {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return courseRepository.findAllByUser(user).stream().map(this::convertToResponseDTO).collect(Collectors.toList());
+        return courseRepository.findAllByUser(user).stream()
+                .map(course -> {
+                    AllCourseResponseDTO responseDTO = convertToResponseDTO(course);
+                    int currentGrade = course.getAssignments().values().stream()
+                            .mapToInt(Integer::intValue)
+                            .sum();
+                    responseDTO.setCurrentGrade(currentGrade);
+                    return responseDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -56,6 +60,11 @@ public class CourseServiceImpl implements CourseService {
             throw new EntityNotFoundException("Course not found!");
         }
         CourseResponseDTO courseResponseDTO  = convertToCourseResponseDTO(courseRepository.getCourseById(id));
+        int grade = 0;
+        for (Map.Entry<String, Integer> entry : courseResponseDTO.getAssignments().entrySet()) {
+            grade += entry.getValue();
+        }
+        courseResponseDTO.setCurrentGrade(grade);
         if(courseResponseDTO.getCurrentGrade() > 50) {
             courseResponseDTO.setActualProgress(0);
         } else {
@@ -73,15 +82,11 @@ public class CourseServiceImpl implements CourseService {
         }
         Course course = courseRepository.getCourseById(id);
         course.getAssignments().put(taskDTO.getTask(), taskDTO.getGrade());
-        int grade = 0;
-        for (Map.Entry<String, Integer> entry : course.getAssignments().entrySet()) {
-            grade += entry.getValue();
-        }
-        course.setCurrentGrade(grade);
         courseRepository.save(course);
     }
 
     @Override
+    @Transactional
     public void deleteCourse(Long id) {
         if(courseRepository.findById(id).isEmpty()) {
             throw new EntityNotFoundException("Course not found!");
@@ -90,6 +95,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public void updateCourse(Long id, CourseDTO courseDTO) {
         if(courseRepository.findById(id).isEmpty()) {
             throw new EntityNotFoundException("Course not found!");
