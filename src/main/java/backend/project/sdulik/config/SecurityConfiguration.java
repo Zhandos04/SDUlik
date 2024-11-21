@@ -29,13 +29,7 @@ public class SecurityConfiguration {
             "/swagger-resources/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/auth/**",
-            "/vacancy/all",
-            "/vacancy/by-filter",
-            "/vacancy/detail/*",
-            "/profile/**",
-            "/internship/all",
-            "/news/all"
+            "/auth/**"
     };
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,11 +38,6 @@ public class SecurityConfiguration {
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITE_LIST_URL).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/responses/create", "/responses/my", "/responses/my/accepted"
-                        , "/responses/my/pending", "/responses/my/rejected").hasRole("USER")
-                .requestMatchers("/vacancy/add", "/vacancy/my-vacancies", "/vacancy/edit/*"
-                        , "/vacancy/delete/*", "/responses/forMyVacancy", "/responses/status/*", "/vacancy/addCompany").hasRole("EMPLOYER")
                 .anyRequest().authenticated()
         );
 

@@ -88,6 +88,7 @@ public class AuthController {
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userOptional.get().getEmail(), loginDTO.getPassword()));
         AuthDTO authDTO = new AuthDTO();
+        authDTO.setName(userOptional.get().getFirstName());
         authDTO.setToken(jwtService.generateToken(loginDTO.getEmail()));
         return ResponseEntity.ok(authDTO);
     }

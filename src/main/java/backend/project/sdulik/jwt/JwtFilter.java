@@ -34,12 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/swagger-resources/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/api/auth/**",
-            "/api/vacancy/all",
-            "/api/vacancy/by-filter",
-            "/api/vacancy/detail/*",
-            "/api/internship/all",
-            "/api/news/all"
+            "/api/auth/**"
     );
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -71,22 +66,21 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             String username = jwtService.extractUsername(token);
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userService.loadUserByUsername(username);
                 if (jwtService.validateToken(token, userDetails)) {
-                    String tokenRole = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            Collections.singleton(new SimpleGrantedAuthority(tokenRole))
-                    );
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("Token validation failed");
                 }
             }
+
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authentication failed: " + e.getMessage());
             return;
         }
 

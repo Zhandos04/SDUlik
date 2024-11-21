@@ -41,6 +41,8 @@ public class User implements UserDetails {
     private String phoneNumber;
     @Column(name = "code_sent_at")
     private LocalDateTime codeSentAt;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Course> courses = new ArrayList<>();
     @Override
     public boolean isAccountNonExpired() {
         return true;
