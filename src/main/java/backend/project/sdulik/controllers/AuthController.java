@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
-@Tag(name="Auth", description="Взаймодействие с пользователями")
+@Tag(name="Auth", description="Аутентификация и авторизация")
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;
@@ -39,7 +39,9 @@ public class AuthController {
     private final EmailService emailService;
 
     @PostMapping( "/signup")
-    @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
+    @Operation(summary = "Новый пользователь создать ету", description = "Астыдагы объект бойынша осы эндпоинтка пост запрос жибересин" +
+            ". После этого жазган емайлды подверждать ету керек ол ушин /verify-email деген эндпоинтка емайлмен почтага келген кодты жибересин." +
+            " Сосын барып пользователь успешно тиркеледи")
     @ApiResponse(responseCode = "202", description = "Code sent successfully!")
     @ApiResponse(responseCode = "400", description = "Invalid user data provided", content = @Content)
     public ResponseEntity<String> register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException {
@@ -54,7 +56,8 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    @Operation(summary = "Verify Email", description = "Verifies the reset code entered by the user.")
+    @Operation(summary = "Верификация емайла", description = "Емайл мен кодты жибересин. Осыдан кейин смело логин " +
+            "жасай бере аласын если кодты дурыс жиберсен")
     @ApiResponse(responseCode = "200", description = "User registered successfully")
     @ApiResponse(responseCode = "400", description = "Incorrect reset code")
     @ApiResponse(responseCode = "404", description = "User not found")
@@ -76,7 +79,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "User login", description = "Authenticates a user and returns an Auth token.")
+    @Operation(summary = "Логин киру сайтка", description = "Емайлмен парольди жазып пост запрос жибересин." +
+            "В ответ токен аласын, Сол токенди озине сактап алп сайтка киргеннен кейинги барлык запроска колданасын. Чтобы " +
+            "бэкенд соны расшифровать етип кай пользовательден келип жатканын билуим ушин")
     @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(schema = @Schema(implementation = AuthDTO.class)))
     @ApiResponse(responseCode = "401", description = "Incorrect ID or password")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
@@ -94,7 +99,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "User logout.")
+    @Operation(summary = "Аккаунттан шыгу.", description = "logout баскан кезде осы эндпоинтка токен жибересин " +
+            "Bearer кылып как обычно бэкенд ол токенди черный списокка тыгады. Сосын келеси логинда баска токен аласын")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -112,7 +118,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Password recovery", description = "Initiates a password recovery process by sending a reset code to the user's email.")
+    @Operation(summary = "Пароль восстановить ету", description = "Емайлынды осы эндпоинтка жибересин. Бэк осы емайлга код жибереди восстановить ету ушин парольди")
     @ApiResponse(responseCode = "200", description = "Reset code sent successfully")
     @ApiResponse(responseCode = "404", description = "Email not found")
     public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
@@ -131,8 +137,9 @@ public class AuthController {
 
         return ResponseEntity.ok("Reset password instructions have been sent to your email.");
     }
-    @PostMapping("/verify-password")
-    @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
+    @PostMapping("/verify-code")
+    @Operation(summary = "Кодты тексеру ", description = "Емайлмен кодты жибересин. Бэк кодты тексереди дурыс болса" +
+            "200 успешно деген ответ барады сол кезде новый пароль жазатын пейджга ауыстырасын")
     @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
     @ApiResponse(responseCode = "401", description = "Incorrect reset code")
     public ResponseEntity<?> verifyPassword(@RequestBody CodeDTO codeDTO) {
@@ -147,7 +154,7 @@ public class AuthController {
     }
 
     @PostMapping("/update-password")
-    @Operation(summary = "Update user password", description = "Updates the user's password after verification.")
+    @Operation(summary = "Новый пароль", description = "Емайлмен новый парольди жиберип парольди обновить етесин")
     @ApiResponse(responseCode = "200", description = "Password updated successfully")
     public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDTO updatePasswordDTO) {
         Optional<User> user = userService.getUserByEmail(updatePasswordDTO.getEmail());
