@@ -8,6 +8,5 @@ public class CourseDTO {
     private String courseCode;
     private String courseName;
     private String teacherName;
-    private Integer totalGrade;
-    private Map<String, Integer> assignments;
+    private Map<String, String> assignments;
 }

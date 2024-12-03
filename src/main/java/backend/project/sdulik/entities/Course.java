@@ -3,6 +3,7 @@ package backend.project.sdulik.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Entity
@@ -25,10 +26,14 @@ public class Course {
     @CollectionTable(name = "course_assignments", joinColumns = @JoinColumn(name = "course_id"))
     @MapKeyColumn(name = "assignment_name")
     @Column(name = "score")
-    private Map<String, Integer> assignments;
+    @OrderColumn(name = "order_index")
+    private Map<String, String> assignments = new LinkedHashMap<>();
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @Column(name = "currentGrade")
     private Integer currentGrade;
+    public Course() {
+        this.totalGrade = 100;
+    }
 }

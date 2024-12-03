@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class TaskDTO {
     private String task;
-    private Integer grade;
+    private String grade;
 }

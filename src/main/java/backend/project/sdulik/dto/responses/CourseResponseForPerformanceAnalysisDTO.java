@@ -1,11 +1,10 @@
 package backend.project.sdulik.dto.responses;
 
 import lombok.Data;
-
 import java.util.Map;
 
 @Data
-public class CourseResponseDTO {
+public class CourseResponseForPerformanceAnalysisDTO {
     private Long id;
     private String courseCode;
     private String courseName;
@@ -13,5 +12,6 @@ public class CourseResponseDTO {
     private Integer totalGrade;
     private Map<String, String> assignments;
     private Integer currentGrade;
-    private Integer actualProgress;
+    private Integer prognosis;
+    private Integer overall;
 }

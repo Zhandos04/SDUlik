@@ -4,6 +4,8 @@ import backend.project.sdulik.dto.requests.CourseDTO;
 import backend.project.sdulik.dto.requests.TaskDTO;
 import backend.project.sdulik.dto.responses.AllCourseResponseDTO;
 import backend.project.sdulik.dto.responses.CourseResponseDTO;
+import backend.project.sdulik.dto.responses.CourseResponseForPerformanceAnalysisDTO;
+
 import java.util.List;
 
 public interface CourseService {
@@ -13,4 +15,5 @@ public interface CourseService {
     void addTask(Long id, TaskDTO taskDTO);
     void deleteCourse(Long id);
     void updateCourse(Long id, CourseDTO courseDTO);
+    List<CourseResponseForPerformanceAnalysisDTO> getAllCoursesForPerformanceAnalysis();
 }
